@@ -3,5 +3,5 @@ import react from '@vitejs/react-plugin'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/genshin-dps-calc/',
 })
