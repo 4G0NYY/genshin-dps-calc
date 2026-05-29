@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 
 // Character base data (Ascension stats / signature traits)
 const CHARACTERS = {
-  custom: { name: 'Custom / Other', atk: 2000, critRate: 60, critDamage: 120, dmgBonus: 46.6 },
-  skirk: { name: 'Skirk', atk: 2200, critRate: 65, critDamage: 160, dmgBonus: 60.0 },
-  furina: { name: 'Furina', atk: 1500, critRate: 74.2, critDamage: 120, dmgBonus: 46.6 },
-  arlecchino: { name: 'Arlecchino', atk: 2400, critRate: 60, critDamage: 158.4, dmgBonus: 46.6 },
-  mavuika: { name: 'Mavuika', atk: 2300, critRate: 70, critDamage: 140, dmgBonus: 50.0 },
-  raiden: { name: 'Raiden Shogun', atk: 1900, critRate: 60, critDamage: 120, dmgBonus: 75.0 },
-  hutao: { name: 'Hu Tao', atk: 3500, critRate: 60, critDamage: 158.4, dmgBonus: 33.0 }, // Simulated active E skill ATK
+  custom: { name: 'Custom / Other', atk: 2000, critRate: 60, critDamage: 120, dmgBonus: 46.6, em: 0 },
+  skirk: { name: 'Skirk', atk: 2200, critRate: 65, critDamage: 160, dmgBonus: 60.0, em: 0 },
+  furina: { name: 'Furina', atk: 1500, critRate: 74.2, critDamage: 120, dmgBonus: 46.6, em: 80 },
+  arlecchino: { name: 'Arlecchino', atk: 2400, critRate: 60, critDamage: 158.4, dmgBonus: 46.6, em: 100 },
+  mavuika: { name: 'Mavuika', atk: 2300, critRate: 70, canvas: 140, dmgBonus: 50.0, em: 80 },
+  raiden: { name: 'Raiden Shogun', atk: 1900, critRate: 60, critDamage: 120, dmgBonus: 75.0, em: 0 }, // Or 1000 if Hyperbloom LMAO!
+  hutao: { name: 'Hu Tao', atk: 3500, critRate: 60, critDamage: 158.4, dmgBonus: 33.0, em: 220 },
 };
 
 export default function App() {
@@ -21,6 +21,7 @@ export default function App() {
     critRate: 60,
     critDamage: 120,
     dmgBonus: 46.6,
+    em: 0,
   });
 
   // Enemy Stats State
@@ -84,6 +85,26 @@ export default function App() {
       resMultiplier = 1 - (resPercent / 2); // Resistance shred below 0% is halved
     }
 
+    // 5. Reaction DMG
+
+    // first calculate EM bonus
+    const em = stats.em;
+    const ampEMBonus = (2.78 * em) / (em + 1400); // Amplifying Reaction Bonus
+    const transfEMBonus = (16 * em) / (em + 2000); // Transformative Reaction Bonus
+
+    // Vape Damage (Reverse)
+    const vapeMultiplier = 1.5 * (1 + ampEMBonus); // Vaporize multiplier with EM bonus
+    const finalVapeCritDmg = results.crit * vapeMultiplier; // Critical Vaporize damage
+
+    // Hyperbloom Danage (reverse, character level 90 assumed for now)
+    const level90Base = 1446.85; // Base Hyperbloom damage at level 90 without EM
+    const hyperbloomMultiplier = 3.0; // Hyperbloom multiplier
+    const finalHyperbloomDmg = level90Base * hyperbloomMultiplier * (1 + transfEMBonus) * resMultiplier; // Final Hyperbloom damage with EM bonus
+
+
+
+
+
     // Combined Math
     const baseOutgoing = baseDmg * dmgBonusMultiplier * defMultiplier * resMultiplier;
 
@@ -133,6 +154,7 @@ export default function App() {
             { label: 'CRIT Rate', name: 'critRate', unit: '%' },
             { label: 'CRIT DMG', name: 'critDamage', unit: '%' },
             { label: 'DMG Bonus', name: 'dmgBonus', unit: '%' },
+            { label: 'Elemental Mastery', name: 'em', unit: 'EM' },
           ].map((input) => (
             <div key={input.name} className="flex flex-col gap-1">
               <label className="text-sm font-medium text-gray-400">{input.label}</label>
