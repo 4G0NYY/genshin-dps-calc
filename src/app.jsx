@@ -56,7 +56,7 @@ export default function App() {
     setEnemy((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
   };
 
-  // Advanced Genshin Math Calculation
+// Advanced Genshin Math Calculation
   const calculateDamage = () => {
     const { atk, talentMultiplier, critRate, critDamage, dmgBonus } = stats;
     const { charLevel, enemyLevel, resistance, defShred } = enemy;
@@ -82,36 +82,34 @@ export default function App() {
     } else if (resPercent >= 0) {
       resMultiplier = 1 - resPercent;
     } else {
-      resMultiplier = 1 - (resPercent / 2); // Resistance shred below 0% is halved
+      resMultiplier = 1 - (resPercent / 2); 
     }
 
-    // 5. Reaction DMG
-
-    // first calculate EM bonus
-    const em = stats.em;
-    const ampEMBonus = (2.78 * em) / (em + 1400); // Amplifying Reaction Bonus
-    const transfEMBonus = (16 * em) / (em + 2000); // Transformative Reaction Bonus
-
-    // Vape Damage (Reverse)
-    const vapeMultiplier = 1.5 * (1 + ampEMBonus); // Vaporize multiplier with EM bonus
-    const finalVapeCritDmg = results.crit * vapeMultiplier; // Critical Vaporize damage
-
-    // Hyperbloom Danage (reverse, character level 90 assumed for now)
-    const level90Base = 1446.85; // Base Hyperbloom damage at level 90 without EM
-    const hyperbloomMultiplier = 3.0; // Hyperbloom multiplier
-    const finalHyperbloomDmg = level90Base * hyperbloomMultiplier * (1 + transfEMBonus) * resMultiplier; // Final Hyperbloom damage with EM bonus
-
-
-
-
-
-    // Combined Math
+    // Combined Raw Outgoing Math (Non-reaction, non-crit base)
     const baseOutgoing = baseDmg * dmgBonusMultiplier * defMultiplier * resMultiplier;
+    const standardCritDmg = baseOutgoing * (1 + actualCritDamage);
 
+    // 5. Reaction DMG
+    const em = stats.em;
+    const ampEMBonus = (2.78 * em) / (em + 1400); 
+    const transfEMBonus = (16 * em) / (em + 2000); 
+
+    // Vape Damage (Reverse) - Fixed to use standardCritDmg directly!
+    const vapeMultiplier = 1.5 * (1 + ampEMBonus); 
+    const finalVapeCritDmg = standardCritDmg * vapeMultiplier; 
+
+    // Hyperbloom Damage
+    const level90Base = 1446.85; 
+    const hyperbloomMultiplier = 3.0; 
+    const finalHyperbloomDmg = level90Base * hyperbloomMultiplier * (1 + transfEMBonus) * resMultiplier;
+
+    // Return EVERYTHING so your UI can display it
     return {
       normal: Math.round(baseOutgoing),
-      crit: Math.round(baseOutgoing * (1 + actualCritDamage)),
+      crit: Math.round(standardCritDmg),
       average: Math.round(baseOutgoing * critMultiplier),
+      vapeCrit: Math.round(finalVapeCritDmg), // Now available!
+      hyperbloom: Math.round(finalHyperbloomDmg), // Now available!
     };
   };
 
