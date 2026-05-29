@@ -202,8 +202,12 @@ export default function App() {
                 <p className="text-4xl font-extrabold text-yellow-400 mt-1">{results.average.toLocaleString()}</p>
                 <p className="text-xs text-gray-400 mt-3 leading-relaxed">
                   This represents the exact damage you will see pop up on your screen in-game against a real level {enemy.enemyLevel} monster!
+                  *Do remember though: This is just the Damage for one single hit of one character. In actual combat, your DPS will depend on how many hits you can land in a given time frame, your rotation, and the enemy's behavior.*
                 </p>
               </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Check out this Repo on GitHub: <a href="https://github.com/4G0NYY/genshin-dps-calc" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">https://github.com/4G0NYY/genshin-dps-calc</a>
+              </p>
             </div>
           </div>
         </section>
