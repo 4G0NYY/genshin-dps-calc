@@ -1,0 +1,46 @@
+# GitLab CI/CD — translated from .github/workflows/deploy.yml, which is left in
+# place so the site can still be published from GitHub.
+#
+# GitLab Pages replaces the configure-pages / upload-pages-artifact / deploy-pages
+# chain: the job has to be called `pages` and serve out of `public/`.
+#
+# Unlike the other sites in this migration, this one has no custom domain, so Pages
+# serves it under a path (https://pages.ramon.moe/<project-slug>/) rather than at a
+# root. vite.config.js sets base '/', which would break every asset URL there, so the
+# base is overridden at build time from CI_PAGES_URL — the value stays correct if a
+# custom domain is added later, since it then resolves to "/".
+
+stages:
+  - deploy
+
+pages:
+  stage: deploy
+  tags: [docker]
+  image: node:20
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  resource_group: pages
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - |
+      # Strip scheme+host off the Pages URL to get the path this site is served
+      # under; fall back to "/" when Pages serves from a domain root.
+      BASE_PATH="$(printf '%s' "$CI_PAGES_URL" | sed -E 's#^https?://[^/]+##')"
+      case "$BASE_PATH" in
+        ""|"/") BASE_PATH="/" ;;
+        */)     ;;
+        *)      BASE_PATH="$BASE_PATH/" ;;
+      esac
+      echo "Building with base $BASE_PATH"
+      npm run build -- --base="$BASE_PATH"
+    - rm -rf public && mv dist public
+  artifacts:
+    paths:
+      - public
