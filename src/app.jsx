@@ -226,7 +226,7 @@ export default function App() {
                 </p>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Check out this Repo on GitHub: <a href="https://github.com/4G0NYY/genshin-dps-calc" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">https://github.com/4G0NYY/genshin-dps-calc</a>
+                Check out this Repo on GitLab: <a href="https://gitlab.ramon.moe/4G0NYY/genshin-dps-calc" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">https://gitlab.ramon.moe/4G0NYY/genshin-dps-calc</a>
               </p>
             </div>
           </div>
